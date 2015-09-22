@@ -1,40 +1,18 @@
 macports-lamp
 =============
 
-Builds a LAMP (MAMP) stack on OS X 10.9 Mavericks or 10.10 Yosemite using 
-MacPorts.
-
-Intended to be used on a fresh 10.9 or 10.10 install.
+Builds a LAMP stack on RHEL 7.1 
+Specifically tailored for luggage development
 
 Please read this README all the way through before beginning.
 
 Why
 ---
-MacPorts is powerful but finicky. I commonly end up with MySQL (I know, we're
-all switching to MariaDB soon) with the wrong permissions and other little
-niggling trouble. Therefore this script, which will reliably install MySQL 5.5
-and PHP 5.4 plus Apache on OS X. At least, for me. Tested with MacPorts 2.2.1 
-on OS X 10.9.1 and MacPorts 2.2.3 on OS X 10.10.1.
+Need a dev environment on my laptop
 
 Prerequisites
 -------------
 
-Install [MacPorts](http://www.macports.org/install.php) with its prerequisites.
-
-Make sure to install XCode and do
-
-```
-sudo xcodebuild -license
-xcode-select --install
-```
-
-Create a my.cnf and put it at /etc/my.cnf. You could use the [Percona Wizard](https://tools.percona.com/wizard).
-
-Ensure that /etc/my.cnf has a line for the socket MacPorts will use:
-
-```
-socket		= /opt/local/var/run/mysql55/mysqld.sock
-```
 
 Read Through the Script
 -----------------------
@@ -52,12 +30,12 @@ going to http://local.dev/ after the script completes.
 NameVirtualHost *:80
 <VirtualHost *:80>
     ServerName local.dev
-    DocumentRoot /Users/username/Sites
-    <Directory /Users/username/Sites>
+    DocumentRoot /home/username/Sites
+    <Directory /home/username/Sites>
       Options Indexes FollowSymLinks
       DirectoryIndex index.php index.html
       Order deny,allow
-      Allow from 127.0.0.1
+      Require ip 127.0.0.1
       AllowOverride All
     </Directory>
 </VirtualHost>
@@ -98,7 +76,5 @@ want a newer Drush than this.
 
 Reference
 ---------
-https://trac.macports.org/wiki/howto/MAMP
-
-http://aaronbonner.io/post/44973182283/a-guide-to-php-mysql-and-nginx-on-macports
+https://github.com/clouseau/macports-lamp
 

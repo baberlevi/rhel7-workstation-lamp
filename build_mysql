@@ -1,22 +1,14 @@
 #!/bin/bash
 
-# Remove startup items; these will be replaced.
-rm /Library/LaunchDaemons/org.macports.mysql55-server.plist
+# Start with MariaDB server.
+yum install -y mariadb-server mariadb
 
-# Start with MySQL server.
-port install mysql55-server
-
-mv /opt/local/etc/mysql55/my.cnf /opt/local/etc/mysql55/my.cnf.disabled
-echo "Disabled my.cnf in /optlocal/etc/mysql55/my.cnf; please use /etc/my.cnf"
-
-# Create initial databases.
-sudo -u _mysql /opt/local/lib/mysql55/bin/mysql_install_db
-
-# Map mysql command-line binaries to the version we are installing.
-port select mysql mysql55
+#mv /opt/local/etc/mysql55/my.cnf /opt/local/etc/mysql55/my.cnf.disabled
+#echo "Disabled my.cnf in /optlocal/etc/mysql55/my.cnf; please use /etc/my.cnf"
 
 # Start MySQL.
-port load mysql55-server
+systemctl enable mariadb.service
+systemctl start mariadb.service
 
 # Need enough time for tablespace creation or expect will not connect.
 echo "Waiting 30 seconds for tablespace creation"
@@ -58,7 +50,7 @@ send "y\r"
 EOF
 
 echo
-echo "MySQL should now be installed."
+echo "MariaDB-server and client should now be installed."
 echo
 echo "If you want it to start at startup, type:"
 echo "sudo launchctl load -w /Library/LaunchDaemons/org.macports.mysql55-server.plist"

@@ -7,44 +7,20 @@ if [ -z $SUDO_USER ]; then
   exit 1
 fi
 
-PORTFOUND=$(type -P port)
-if [ "$PORTFOUND" == "" ]; then
-  echo "port command not found. Please ensure that MacPorts has been installed."
-  echo "Then log out, log in, and try again."
-  exit 1
-fi
-
-# Update ports tree.
-port selfupdate
-
-# Remove startup items; these will be replaced.
-rm /Library/LaunchDaemons/org.macports.apache2.plist
-rm /Library/LaunchDaemons/org.macports.slapd.plist
-
 # Install apache2 and friends.
-port install apache2
-port install php54-apache2handler
-port install php54-gd php54-ldap php54-mbstring php54-mcrypt php54-mysql php54-pear php54-APC
-port install php54-iconv php54-xdebug php54-openssl
-port install php54-curl
-port install pear-PEAR
-/opt/local/apache2/bin/apxs -a -e -n php5 mod_php54.so
-chown $SUDO_USER ~/.pearrc
 
-defSock='/opt/local/var/run/mysql55/mysqld.sock'
-cat /opt/local/etc/php54/php.ini-development | sed \
-  -e "s#pdo_mysql\.default_socket.*#pdo_mysql\.default_socket=${defSock}#" \
-  -e "s#mysql\.default_socket.*#mysql\.default_socket=${defSock}#" \
-  -e "s#mysqli\.default_socket.*#mysqli\.default_socket=${defSock}#" > /opt/local/etc/php54/php.ini
-echo "date.timezone = 'America/Chicago'" >> /opt/local/etc/php54/php.ini
-echo "error_log = /var/log/php.log" >> /opt/local/etc/php54/php.ini
+yum install -y php httpd php-gd php-ldap php-mbstring php-mcrypt php-mysql php-pear
+echo "date.timezone = 'America/Chicago'" >> /etc/php.ini
+echo "error_log = /var/log/php.log" >> /etc/php.ini
 
 # PHP will log errors to /var/log/php.log.
 touch /var/log/php.log
-chown _www /var/log/php.log
+chown apache:apache /var/log/php.log
 
-cp /opt/local/apache2/conf/httpd.conf /opt/local/apache2/conf/httpd.conf.bak
-cp /opt/local/apache2/conf/extra/httpd-vhosts.conf /opt/local/apache2/conf/extra/httpd-vhosts.conf.bak
+#backup running httpd config
+cp /etc/httpd/conf/httpd.conf /etc/httpd/conf/httpd.conf.bak
+mkdir /etc/httpd/sites-available
+mkdir /etc/httpd/sites-enabled
 
 # Websites will live in ~/Sites.
 mkdir -p ~/Sites
