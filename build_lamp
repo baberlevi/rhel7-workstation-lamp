@@ -8,7 +8,6 @@ if [ -z $SUDO_USER ]; then
 fi
 
 # Install apache2 and friends.
-
 yum install -y php httpd php-gd php-ldap php-mbstring php-mcrypt php-mysql php-pear
 echo "date.timezone = 'America/Chicago'" >> /etc/php.ini
 echo "error_log = /var/log/php.log" >> /etc/php.ini
@@ -28,43 +27,34 @@ chown -R $SUDO_USER ~/Sites
 
 FQHN=$(hostname)
 echo "127.0.0.1 local.dev" >> /etc/hosts
-MYIP=$(ipconfig getifaddr en0)
-echo "Include conf/extra/httpd-vhosts.conf" >> /opt/local/apache2/conf/httpd.conf
-echo "ServerName $FQHN:80" >> /opt/local/apache2/conf/httpd.conf
-echo "Include conf/extra/mod_php54.conf" >> /opt/local/apache2/conf/httpd.conf
-echo "NameVirtualHost *:80" > /opt/local/apache2/conf/extra/httpd-vhosts.conf
-echo "<VirtualHost *:80>" >> /opt/local/apache2/conf/extra/httpd-vhosts.conf
-echo "    ServerName local.dev" >> /opt/local/apache2/conf/extra/httpd-vhosts.conf
-echo "    DocumentRoot "$HOME/Sites"" >> /opt/local/apache2/conf/extra/httpd-vhosts.conf
-echo "    <Directory "$HOME/Sites">" >> /opt/local/apache2/conf/extra/httpd-vhosts.conf
-echo "      Options Indexes FollowSymLinks" >> /opt/local/apache2/conf/extra/httpd-vhosts.conf
-echo "      DirectoryIndex index.php index.html" >> /opt/local/apache2/conf/extra/httpd-vhosts.conf
-echo "      Order deny,allow" >> /opt/local/apache2/conf/extra/httpd-vhosts.conf
-echo "      Allow from 127.0.0.1 $MYIP" >> /opt/local/apache2/conf/extra/httpd-vhosts.conf
-echo "      Deny from all" >> /opt/local/apache2/conf/extra/httpd-vhosts.conf
-echo "      AllowOverride All" >> /opt/local/apache2/conf/extra/httpd-vhosts.conf
-echo "    </Directory>" >> /opt/local/apache2/conf/extra/httpd-vhosts.conf
-echo "</VirtualHost>" >> /opt/local/apache2/conf/extra/httpd-vhosts.conf
+
+echo "IncludeOptional sites-enabled/*.conf" >> /etc/httpd/conf/httpd.conf
+
+echo "NameVirtualHost *:80" > /etc/httpd/sites-available/local.dev.conf
+echo "<VirtualHost *:80>" >> /etc/httpd/sites-available/local.dev.conf
+echo "    ServerName local.dev" >> /etc/httpd/sites-available/local.dev.conf
+echo "    DocumentRoot "$HOME/Sites"" >> /etc/httpd/sites-available/local.dev.conf
+echo "    <Directory "$HOME/Sites">" >> /etc/httpd/sites-available/local.dev.conf
+echo "      Options Indexes FollowSymLinks" >> /etc/httpd/sites-available/local.dev.conf
+echo "      DirectoryIndex index.php index.html" >> /etc/httpd/sites-available/local.dev.conf
+echo "      Order deny,allow" >> /etc/httpd/sites-available/local.dev.conf
+echo "      Require ip 127.0.0.1" >> /etc/httpd/sites-available/local.dev.conf
+echo "      Deny from all" >> /etc/httpd/sites-available/local.dev.conf
+echo "      AllowOverride All" >> /etc/httpd/sites-available/local.dev.conf
+echo "    </Directory>" >> /etc/httpd/sites-available/local.dev.conf
+echo "</VirtualHost>" >> /etc/httpd/sites-available/local.dev.conf
+
+#selinux stuff here
 
 # Start Apache
-sudo port load apache2
+systemctl enable httpd.service
+ssytemctl start httpd.service
 
-# Back up system binaries.
-mv /usr/bin/php /usr/bin/php.stock
-mv /usr/bin/php-config /usr/bin/php-config.stock
-mv /usr/bin/phpize /usr/bin/phpize.stock
-
-# Map php, php-config, phpize to php54.
-port select php php54
-
-echo 'te() { tail -f /opt/local/apache2/logs/error_log; }' >> ~/.bash_profile
-echo 'ta() { tail -f /opt/local/apache2/logs/access_log; }' >> ~/.bash_profile
-echo 'tp() { tail -f /var/log/php.log; }' >> ~/.bash_profile
-echo "alias acr='sudo /opt/local/apache2/bin/apachectl -k restart'" >> ~/.bash_profile
+echo 'te() { sudo tail -f /var/log/httpd/error_log; }' >> ~/.bash_profile
+echo 'ta() { sudo tail -f /var/log/httpd/access_log; }' >> ~/.bash_profile
+echo 'tp() { sudo tail -f /var/log/php.log; }' >> ~/.bash_profile
+echo "alias acr='sudo systemctl restart httpd'" >> ~/.bash_profile
 echo
 echo "MySQL was not installed. To install, run separate script build_mysql."
 echo "Complete. Open a new Terminal window for profile settings to take effect."
 echo
-echo 'Note that if MacPorts put its $PATH modification code into .profile then'
-echo ".bash_profile will not be run."
-echo "See http://stackoverflow.com/questions/18773051/how-to-make-os-x-to-read-bash-profile-not-profile-file"

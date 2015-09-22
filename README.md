@@ -1,7 +1,8 @@
 rhel7-lamp
 =============
 
-Builds a LAMP stack on RHEL 7.1 
+Builds a LAMP stack on RHEL 7.1.  
+
 Specifically tailored for luggage development
 
 Please read this README all the way through before beginning.
