@@ -1,4 +1,4 @@
-macports-lamp
+rhel7-lamp
 =============
 
 Builds a LAMP stack on RHEL 7.1 
