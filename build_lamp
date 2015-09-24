@@ -15,6 +15,9 @@ echo "error_log = /var/log/php.log" >> /etc/php.ini
 # PHP will log errors to /var/log/php.log.
 touch /var/log/php.log
 chown apache:apache /var/log/php.log
+#selinux context needs set to let apache write to the log
+semanage fcontext -a -t httpd_log_t "/var/log/php.log"
+restorecon -R -v /var/log/php.log
 
 #backup running httpd config
 cp /etc/httpd/conf/httpd.conf /etc/httpd/conf/httpd.conf.bak
@@ -44,7 +47,11 @@ echo "      AllowOverride All" >> /etc/httpd/sites-available/local.dev.conf
 echo "    </Directory>" >> /etc/httpd/sites-available/local.dev.conf
 echo "</VirtualHost>" >> /etc/httpd/sites-available/local.dev.conf
 
-#selinux stuff here
+#setup selinux context for Sites folder
+#seems it needs to write in css & js folders (caching I assume)
+semanage fcontext -a -t httpd_sys_rw_content_t "/home/$USER/Sites(/.*)?"
+restorecon -R -v /home/$USER/Sites
+
 
 # Start Apache
 systemctl enable httpd.service
