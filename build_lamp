@@ -24,6 +24,8 @@ cp /etc/httpd/conf/httpd.conf /etc/httpd/conf/httpd.conf.bak
 mkdir /etc/httpd/sites-available
 mkdir /etc/httpd/sites-enabled
 
+echo "user is " $USER
+
 # Websites will live in ~/Sites.
 mkdir -p ~/Sites
 #chown -R $SUDO_USER ~/Sites
