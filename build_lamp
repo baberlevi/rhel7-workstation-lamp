@@ -14,10 +14,10 @@ echo "error_log = /var/log/php.log" >> /etc/php.ini
 
 # PHP will log errors to /var/log/php.log.
 touch /var/log/php.log
-chown apache:apache /var/log/php.log
+sudo chown apache:apache /var/log/php.log
 #selinux context needs set to let apache write to the log
-semanage fcontext -a -t httpd_log_t "/var/log/php.log"
-restorecon -R -v /var/log/php.log
+sudo semanage fcontext -a -t httpd_log_t "/var/log/php.log"
+sudo restorecon -R -v /var/log/php.log
 
 #backup running httpd config
 cp /etc/httpd/conf/httpd.conf /etc/httpd/conf/httpd.conf.bak
@@ -26,7 +26,7 @@ mkdir /etc/httpd/sites-enabled
 
 # Websites will live in ~/Sites.
 mkdir -p ~/Sites
-chown -R $SUDO_USER ~/Sites
+#chown -R $SUDO_USER ~/Sites
 
 FQHN=$(hostname)
 echo "127.0.0.1 local.dev" >> /etc/hosts
@@ -48,12 +48,12 @@ echo "</VirtualHost>" >> /etc/httpd/sites-available/local.dev.conf
 
 #setup selinux context for Sites & drupal files folders
 #seems it needs to write in css & js folders (caching I assume)
-semanage fcontext -a -t httpd_sys_rw_content_t "/home/$USER/Sites(/.*)?"
-restorecon -R -v /home/$USER/Sites
-semanage fcontext -a -t httpd_sys_rw_content_t "/var/www/drupal_tmp(/.*)?"
-restorecon -R -v /var/www/drupal_tmp
-semanage fcontext -a -t httpd_sys_rw_content_t "/var/www/drupal_private(/.*)?"
-restorecon -R -v /var/www/drupal_private
+sudo semanage fcontext -a -t httpd_sys_rw_content_t "/home/$USER/Sites(/.*)?"
+sudo restorecon -R -v /home/$USER/Sites
+sudo semanage fcontext -a -t httpd_sys_rw_content_t "/var/www/drupal_tmp(/.*)?"
+sudo restorecon -R -v /var/www/drupal_tmp
+sudo semanage fcontext -a -t httpd_sys_rw_content_t "/var/www/drupal_private(/.*)?"
+sudo restorecon -R -v /var/www/drupal_private
 #currently throwing SELinux alerts for httpd not being able to use port 8983 (solr)
 
 
