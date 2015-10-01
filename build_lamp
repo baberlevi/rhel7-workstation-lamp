@@ -33,7 +33,6 @@ echo "127.0.0.1 local.dev" >> /etc/hosts
 
 echo "IncludeOptional sites-enabled/*.conf" >> /etc/httpd/conf/httpd.conf
 
-echo "NameVirtualHost *:80" > /etc/httpd/sites-available/local.dev.conf
 echo "<VirtualHost *:80>" >> /etc/httpd/sites-available/local.dev.conf
 echo "    ServerName local.dev" >> /etc/httpd/sites-available/local.dev.conf
 echo "    DocumentRoot "$HOME/Sites"" >> /etc/httpd/sites-available/local.dev.conf
@@ -41,16 +40,21 @@ echo "    <Directory "$HOME/Sites">" >> /etc/httpd/sites-available/local.dev.con
 echo "      Options Indexes FollowSymLinks" >> /etc/httpd/sites-available/local.dev.conf
 echo "      DirectoryIndex index.php index.html" >> /etc/httpd/sites-available/local.dev.conf
 echo "      Order deny,allow" >> /etc/httpd/sites-available/local.dev.conf
-echo "      Require ip 127.0.0.1" >> /etc/httpd/sites-available/local.dev.conf
+echo "      Require local" >> /etc/httpd/sites-available/local.dev.conf
 echo "      Deny from all" >> /etc/httpd/sites-available/local.dev.conf
 echo "      AllowOverride All" >> /etc/httpd/sites-available/local.dev.conf
 echo "    </Directory>" >> /etc/httpd/sites-available/local.dev.conf
 echo "</VirtualHost>" >> /etc/httpd/sites-available/local.dev.conf
 
-#setup selinux context for Sites folder
+#setup selinux context for Sites & drupal files folders
 #seems it needs to write in css & js folders (caching I assume)
 semanage fcontext -a -t httpd_sys_rw_content_t "/home/$USER/Sites(/.*)?"
 restorecon -R -v /home/$USER/Sites
+semanage fcontext -a -t httpd_sys_rw_content_t "/var/www/drupal_tmp(/.*)?"
+restorecon -R -v /var/www/drupal_tmp
+semanage fcontext -a -t httpd_sys_rw_content_t "/var/www/drupal_private(/.*)?"
+restorecon -R -v /var/www/drupal_private
+#currently throwing SELinux alerts for httpd not being able to use port 8983 (solr)
 
 
 # Start Apache
