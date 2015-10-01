@@ -1,14 +1,21 @@
 #!/bin/bash
 
+if [ -z $SUDO_USER ]; then
+  echo "Please run the script using sudo, e.g.,"
+  echo ""
+  echo "sudo ./build_mysql"
+  exit 1
+fi
+
 # Start with MariaDB server.
-yum install -y mariadb-server mariadb
+sudo yum install -y mariadb-server mariadb
 
 #mv /opt/local/etc/mysql55/my.cnf /opt/local/etc/mysql55/my.cnf.disabled
 #echo "Disabled my.cnf in /optlocal/etc/mysql55/my.cnf; please use /etc/my.cnf"
 
 # Start MySQL.
-systemctl enable mariadb.service
-systemctl start mariadb.service
+sudo systemctl enable mariadb.service
+sudo systemctl start mariadb.service
 
 # Need enough time for tablespace creation or expect will not connect.
 echo "Waiting 30 seconds for tablespace creation"
@@ -23,7 +30,7 @@ echo ""
 # mysql_secure_installation fails, it can be run after the script completes.
 # A heredoc for expect that automatically answers the questions.
 expect -- << EOF
-spawn mysql_secure_installation
+sudo spawn mysql_secure_installation
 expect "Enter current password for root (enter for none):"
 send "\r"
 	
