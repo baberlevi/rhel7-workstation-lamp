@@ -33,7 +33,7 @@ echo ""
 # mysql_secure_installation fails, it can be run after the script completes.
 # A heredoc for expect that automatically answers the questions.
 expect -- << EOF
-sudo spawn mysql_secure_installation
+spawn sudo mysql_secure_installation
 expect "Enter current password for root (enter for none):"
 send "\r"
 	
