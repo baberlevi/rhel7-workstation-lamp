@@ -56,6 +56,10 @@ sudo semanage fcontext -a -t httpd_sys_rw_content_t "/var/www/drupal_tmp(/.*)?"
 sudo restorecon -R -v /var/www/drupal_tmp
 sudo semanage fcontext -a -t httpd_sys_rw_content_t "/var/www/drupal_private(/.*)?"
 sudo restorecon -R -v /var/www/drupal_private
+#todo: this needs more work
+#.drush needs cloned from bitbucket, will contain env folder that needs symlink and selinux context set
+sudo semanage fcontext -a -t httpd_sys_content_t "/home/$USER/.drush/env(/.*)?"
+sudo restorecon -R -v /home/$USER/.drush/env
 #currently throwing SELinux alerts for httpd not being able to use port 8983 (solr)
 
 
